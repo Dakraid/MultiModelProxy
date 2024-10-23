@@ -1,3 +1,7 @@
+# Notice
+
+This project is in early development, the Docker files are not working as of now and a lot is still missing. Not sure how much broke after the cleanup for upload.
+
 # MultiModelProxy
 
 An OAI-compatible proxy server that facilitates fast Chain of Thought generation thought prompting by using a smaller model to do the CoT inference before handing it to the (larger) main model.
