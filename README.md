@@ -1,6 +1,6 @@
 # Notice
 
-This project is in early development, the Docker files are not working as of now and a lot is still missing. Not sure how much broke after the cleanup for upload.
+This project is in early development, the Docker files are not working as of now and a lot is still missing. Not sure how much broke after the cleanup for upload. This also only works for the Mistral chat template, I'm only supporting what I use myself.
 
 # MultiModelProxy
 
