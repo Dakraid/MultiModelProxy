@@ -1,0 +1,26 @@
+configuration:
+  general:
+    # Logs will be one for the CoT response from the smaller model, and one full expanded completion request
+    write_logs: true
+    logs_path: "./logs/"
+    default_username: User
+    # Supported format placeholders are username and character
+    prompt: "{username}: [PAUSE YOUR ROLEPLAY. Answer all questions concisely, in full sentences, and continuous text.] Think about the story, and consider information you have, especially the description and setting of {character}. What do you have to consider to maintain the characters personalities? How do the characters react and what are their personality traits? What physical space are you in? How do you maintain a consistent progression?Finally: Remind yourself to not act or talk for {username}. What rules should you follow for formatting and style? Only answer the questions as instructed. Remember you are narrating a story for the user, dont include active elements for them."
+  regex:
+    # Mistral Template only
+    text_to_chat_pattern: (?P<System>\[INST](.*)\[/INST] Understood\.</s>)|(?P<User>(?<=\[INST])\s([\w|\s]*:)\s(.*?)(?=\[/INST]))|(?P<Assistant>(?<=\[/INST])\s([\w|\s]*:)\s(.*?)(?=</s>))
+    # Mistral Template only
+    username_pattern: \[INST]\s*([^\s:]+):\s*[^\[\]]*\[/INST](?!</s>)
+  http_client:
+    # Timeout in seconds to wait for a response
+    timeout: 600
+  inference:
+    # The primary endpoint is designed against TabbyAPI
+    primary_url: ""
+    # Valid values are Mistral and TabbyAPI
+    secondary_api_handler: "Mistral"
+    tabby_api:
+      url: ""
+    mistral:
+      api_key: ""
+      model: "mistral-small-latest"

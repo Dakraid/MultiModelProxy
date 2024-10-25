@@ -1,10 +1,18 @@
 # Notice
 
-This project is in early development, the Docker files are not working as of now and a lot is still missing. Not sure how much broke after the cleanup for upload. This also only works for the Mistral chat template, I'm only supporting what I use myself.
+This project is in early development, the Docker files are not working as of now and a lot is still missing. Not sure how much broke after the cleanup for upload. 
+
+This also only works for the Mistral chat template, I'm only supporting what I use myself.
 
 # MultiModelProxy
 
 An OAI-compatible proxy server that facilitates fast Chain of Thought generation thought prompting by using a smaller model to do the CoT inference before handing it to the (larger) main model.
+
+# Usage
+
+To use this project, clone it and create a virtual Python environment. Install the required packages from the requirements.txt and then run using following command:
+
+`python -m uvicorn src.main:app --host 127.0.0.1 --port 5000`
 
 # License
 
