@@ -10,7 +10,12 @@ An OAI-compatible proxy server that facilitates fast Chain of Thought generation
 
 # Usage
 
-To use this project, clone it and create a virtual Python environment. Install the required packages from the requirements.txt and then run using following command:
+1. Clone the project
+2. Create a virtual Python environment
+3. Install the required packages from the "requirements.txt"
+4. Copy the included "config_sample.yaml" to "config.yaml"
+5. Adjust the configuration
+6. Run using following command:
 
 `python -m uvicorn src.main:app --host 127.0.0.1 --port 5000`
 
