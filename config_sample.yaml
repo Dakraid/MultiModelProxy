@@ -17,10 +17,13 @@ configuration:
   inference:
     # The primary endpoint is designed against TabbyAPI
     primary_url: ""
-    # Valid values are Mistral and TabbyAPI
+    # Valid values are Mistral, OpenRouter and TabbyAPI
     secondary_api_handler: "Mistral"
     tabby_api:
       url: ""
     mistral:
+      api_key: ""
+      model: "mistral-small-latest"
+    openrouter:
       api_key: ""
       model: "mistral-small-latest"

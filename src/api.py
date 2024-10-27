@@ -13,7 +13,7 @@ from fastapi import (
 from starlette.responses import StreamingResponse
 
 from src.config import Config
-from src.inference import MistralInference, TabbyApiInference
+from src.inference import MistralInference, OpenRouterInference, TabbyApiInference
 from src.util import Utility
 
 config = Config.from_yaml("config.yaml")
@@ -21,11 +21,17 @@ timeout = httpx.Timeout(config.configuration.http_client.timeout, read=None)
 router = APIRouter()
 utility = Utility(config, timeout)
 
-match config.configuration.inference.secondary_api_handler:
-    case "Mistral":
+match config.configuration.inference.secondary_api_handler.lower():
+    case "mistral":
         inference = MistralInference(config)
-    case "TabbyAPI":
+    case "tabbyapi":
         inference = TabbyApiInference(config)
+    case "openrouter":
+        inference = OpenRouterInference(config)
+    case _:
+        raise ValueError(
+            f"Invalid secondary API handler: {config.configuration.inference.secondary_api_handler}"
+        )
 
 
 @router.post(

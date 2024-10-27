@@ -32,10 +32,16 @@ class Config(yaml2pyclass.CodeGenerator):
                 api_key: str
                 model: str
             
+            @dataclasses.dataclass
+            class OpenrouterClass:
+                api_key: str
+                model: str
+            
             primary_url: str
             secondary_api_handler: str
             tabby_api: TabbyApiClass
             mistral: MistralClass
+            openrouter: OpenrouterClass
         
         general: GeneralClass
         regex: RegexClass
