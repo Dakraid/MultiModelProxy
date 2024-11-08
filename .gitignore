@@ -517,5 +517,6 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,python,windows,jetbrains,jetbrains+all,pycharm,pycharm+all
 
-logs/
+*.http
+logs.sqlite
 config.yaml

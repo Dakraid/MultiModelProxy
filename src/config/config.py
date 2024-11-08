@@ -1,4 +1,5 @@
 import dataclasses
+
 import yaml2pyclass
 
 
@@ -7,10 +8,18 @@ class Config(yaml2pyclass.CodeGenerator):
     class ConfigurationClass:
         @dataclasses.dataclass
         class GeneralClass:
-            write_logs: bool
+            @dataclasses.dataclass
+            class StExtensionClass:
+                enabled: bool
+                text_to_chat_pattern: str
+            
+            dev_api_key: str
+            write_thought_logs: bool
+            write_full_logs: bool
             logs_path: str
             default_username: str
             prompt: str
+            st_extension: StExtensionClass
         
         @dataclasses.dataclass
         class RegexClass:

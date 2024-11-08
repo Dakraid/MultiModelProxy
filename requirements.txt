@@ -7,5 +7,12 @@ starlette>=0.40.0
 mistralai>=1.1.0
 ruff>=0.7.1
 PyYAML>=6.0.2
-
 yaml2pyclass>=0.1.2
+openai>=1.53.0
+watchfiles>=0.24.0
+peewee>=3.17.7
+slowapi>=0.1.9
+peewee-aio[aiosqlite]>=2.0.0
+aiosqlite>=0.20.0
+loguru>=0.7.2
+rich>=13.9.4
