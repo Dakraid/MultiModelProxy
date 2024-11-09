@@ -20,7 +20,7 @@ from rich.progress import (
 )
 
 RICH_CONSOLE = Console()
-LOG_LEVEL = os.getenv("MMP_LOG_LEVEL", "INFO")
+LOG_LEVEL = os.getenv("MMP_LOG_LEVEL", "DEBUG")
 T = TypeVar("T")
 
 

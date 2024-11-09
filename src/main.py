@@ -16,6 +16,7 @@ from src.utility.logger import setup_logger
 # Initialize core components
 config = Config.from_yaml("config.yaml")
 timeout = httpx.Timeout(config.configuration.http_client.timeout, read=None)
+client = httpx.AsyncClient(timeout=timeout)
 router = APIRouter()
 variables = Variables(config, timeout)
 
@@ -31,35 +32,26 @@ inference = INFERENCE_HANDLERS[handler](config)
 
 async def make_request(method: str, url: str, headers: dict = None, body: Any = None, stream: bool = False):
     """Unified request handler"""
-    async with httpx.AsyncClient(timeout=timeout) as client:
-        kwargs = {"headers": headers or {}}
-        if body:
-            kwargs["content"] = json.dumps(body) if isinstance(body, (dict, list)) else body
+    kwargs = {"headers": headers or {}}
+    if body:
+        kwargs["content"] = json.dumps(body) if isinstance(body, (dict, list)) else body
 
-        if stream:
-            async with client.stream(method, url, **kwargs) as response:
-                async for chunk in response.aiter_bytes():
-                    yield chunk
-        else:
-            response = await getattr(client, method.lower())(url, **kwargs)
-            try:
-                yield response.json()
-                return
-            except:
-                yield response.text
-                return
+    if not stream:
+        response = await getattr(client, method.lower())(url, **kwargs)
+        # noinspection PyBroadException
+        try:
+            return response.json()
+        except:  # noqa: E722
+            return response.text
+    else:
+        return client.stream(method, url, **kwargs)
 
 
-async def make_stream_request(method: str, url: str, headers: dict = None, body: Any = None):
-    """Separated streaming request handler"""
-    async with httpx.AsyncClient(timeout=timeout) as client:
-        kwargs = {"headers": headers or {}}
-        if body:
-            kwargs["content"] = json.dumps(body) if isinstance(body, (dict, list)) else body
-
-        async with client.stream(method, url, **kwargs) as response:
-            async for chunk in response.aiter_bytes():
-                yield chunk
+async def stream_response(response):
+    """Helper function to stream response data"""
+    async with response as streaming_response:
+        async for chunk in streaming_response.aiter_bytes():
+            yield chunk
 
 
 @lru_cache(maxsize=1)
@@ -100,8 +92,7 @@ async def completion_request_handler(
 ):
     """Handle completion requests"""
     # Check TabbyAPI health
-    health_url = f"{config.configuration.inference.primary_url}/health"
-    health = await make_request("GET", health_url)
+    health = await make_request("GET", f"{config.configuration.inference.primary_url}/health")
     if not health:
         raise HTTPException(status_code=502, detail="The TabbyAPI instance is unavailable")
 
@@ -120,9 +111,9 @@ async def completion_request_handler(
     headers = {"x-api-key": x_api_key, "Authorization": authorization}
 
     if completion_request.get("stream"):
-        return StreamingResponse(
-            make_stream_request("POST", url, headers, completion_request), media_type="application/json"
-        )
+        response = await make_request("POST", url, headers, completion_request, stream=True)
+        return StreamingResponse(stream_response(response), media_type="application/json")
+
     return await make_request("POST", url, headers, completion_request)
 
 
@@ -151,7 +142,8 @@ async def proxy_endpoint(request: Request, path: str, x_api_key: str = Header(No
             health = await make_request("GET", f"{config.configuration.inference.primary_url}/health")
             if not health:
                 raise HTTPException(status_code=502, detail="The TabbyAPI instance is unavailable")
-        return await make_request("GET", url, headers)
+        result = await make_request("GET", url, headers)
+        return result
 
     body = await request.body()
     return await make_request("POST", url, headers, body)
@@ -162,7 +154,7 @@ async def lifespan(app: FastAPI):
     """FastAPI lifespan manager"""
     await database.handler()
     yield
-    await httpx.AsyncClient(timeout=timeout).aclose()
+    await client.aclose()
 
 
 # Initialize FastAPI app
@@ -184,8 +176,12 @@ async def catch_exceptions_middleware(request: Request, call_next):
 
 if __name__ == "__main__":
     import uvicorn
+    import uvloop
+    import asyncio
+
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
     setup_logger()
     logger.info("Starting MMP")
 
-    uvicorn.run("src.main:app", host="127.0.0.1", port=5000, reload=True, reload_excludes="config.py")
+    uvicorn.run("src.main:app", host="127.0.0.1", port=5000, reload=True, reload_excludes="config.py", loop="uvloop")
